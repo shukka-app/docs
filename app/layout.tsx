@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import type { Metadata } from 'next';
 import { RootProvider } from 'fumadocs-ui/provider/next';
 import './global.css';
@@ -18,4 +19,10 @@ export default function Layout({ children }: LayoutProps<'/'>) {
       </body>
     </html>
   );
+=======
+import './global.css';
+
+export default function RootLayout({ children }: LayoutProps<'/'>) {
+  return children;
+>>>>>>> 0c83146 (Add Fumadocs i18n for zh-CN and en-US)
 }
