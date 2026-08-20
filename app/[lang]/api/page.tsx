@@ -3,12 +3,12 @@ import { RedocClient } from './redoc-client';
 
 const copy = {
   'zh-CN': {
-    title: 'API 参考 — Shukka 文档',
+    title: 'API 参考',
     description:
       'Shukka 的 OpenAPI 参考：API key（或面板 session）可调用的 App API、上传协议，以及公开无鉴权的更新 feed 与 release notes 接口。',
   },
   'en-US': {
-    title: 'API Reference — Shukka Docs',
+    title: 'API Reference',
     description:
       'Shukka OpenAPI reference: App APIs callable with an API key (or panel session), the upload protocol, and the public unauthenticated update feed and release notes endpoints.',
   },

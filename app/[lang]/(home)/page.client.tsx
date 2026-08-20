@@ -6,7 +6,26 @@ import { cn } from '@/lib/cn';
 const installCmd =
   'docker run -d --name shukka -p 3000:3000 -v shukka-data:/data ghcr.io/shukka-app/shukka';
 
-export function SetupAnimation(props: HTMLAttributes<HTMLDivElement>) {
+const copy = {
+  'zh-CN': {
+    openPanel: '打开面板',
+    setPassword: '设置管理员密码',
+    passwordHint: '至少 8 位',
+    ready: '面板已就绪',
+  },
+  'en-US': {
+    openPanel: 'Open the panel',
+    setPassword: 'Set the admin password',
+    passwordHint: 'At least 8 characters',
+    ready: 'Panel is ready',
+  },
+} as const;
+
+export function SetupAnimation({
+  locale,
+  ...props
+}: HTMLAttributes<HTMLDivElement> & { locale: string }) {
+  const t = copy[locale as keyof typeof copy] ?? copy['en-US'];
   const tickTime = 80;
   const timeCommandEnter = installCmd.length;
   const timeCommandRun = timeCommandEnter + 4;
@@ -48,7 +67,7 @@ export function SetupAnimation(props: HTMLAttributes<HTMLDivElement>) {
         {tick > timeCommandRun + 1 && (
           <>
             <span>
-              <span className="text-fd-muted-foreground">◇</span> 打开面板
+              <span className="text-fd-muted-foreground">◇</span> {t.openPanel}
             </span>
             <span className="text-fd-muted-foreground">│ http://localhost:3000</span>
           </>
@@ -57,12 +76,12 @@ export function SetupAnimation(props: HTMLAttributes<HTMLDivElement>) {
           <>
             <span className="text-fd-muted-foreground">│</span>
             <span>
-              <span className="text-fd-muted-foreground">◆</span> 设置管理员密码
+              <span className="text-fd-muted-foreground">◆</span> {t.setPassword}
             </span>
           </>
         )}
         {tick > timeCommandRun + 5 && (
-          <span className="text-fd-muted-foreground">│ ● 至少 8 位</span>
+          <span className="text-fd-muted-foreground">│ ● {t.passwordHint}</span>
         )}
       </span>,
     );
@@ -76,7 +95,7 @@ export function SetupAnimation(props: HTMLAttributes<HTMLDivElement>) {
         if (tick >= timeEnd) setTick(0);
       }}
     >
-      {tick > timeWindowOpen && <ReadyWindow />}
+      {tick > timeWindowOpen && <ReadyWindow label={t.ready} />}
       <pre className="overflow-auto text-[13px] leading-relaxed p-4">
         <div
           className="mb-4 w-fit px-2 py-px rounded-full border text-xs text-fd-muted-foreground"
@@ -90,14 +109,14 @@ export function SetupAnimation(props: HTMLAttributes<HTMLDivElement>) {
   );
 }
 
-function ReadyWindow() {
+function ReadyWindow({ label }: { label: string }) {
   return (
     <div className="absolute right-3 top-3 z-10 animate-[landing-in_0.45s_ease_both] rounded-xl border bg-fd-background px-3 py-2 text-xs shadow-none">
       <div className="flex items-center gap-2 text-fd-muted-foreground">
         <span className="size-1.5 rounded-full bg-[var(--success)]" />
         localhost:3000
       </div>
-      <p className="mt-1 font-medium">面板已就绪</p>
+      <p className="mt-1 font-medium">{label}</p>
     </div>
   );
 }
