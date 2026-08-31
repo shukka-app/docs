@@ -1,18 +1,16 @@
 ---
 title: Cloudflare Workers
-description: 在 Cloudflare Workers 上跑同一份 Shukka 面板：远程 libsql 数据库，加密密钥只走环境变量。
+description: 把 Shukka 部署到 Cloudflare Workers。需要远程 libsql 数据库，以及写在 secret 里的加密密钥。
 ---
 
-Cloudflare Workers 是**第二条全面板路径**，不是只跑 feed 的 edge。setup、登录、应用、渠道、发布日志、接入说明、上传 API、更新 feed，与 Docker / VPS 是同一份产品。
-
-单机加数据卷仍是主路径，见[自托管部署](/zh-CN/docs/deployment)。
+不想自己挂一台 VPS 时，可以把 Shukka 跑在 Cloudflare Workers 上。打开 Worker URL，设管理员密码，然后像[自托管](/zh-CN/docs/deployment)一样建应用、发版。没有数据卷：数据库是远程 libsql URL，加密密钥用 Wrangler secret。
 
 ## 和自托管的差异
 
 | 主题 | Node（Docker / VPS） | Cloudflare Workers |
 |------|------|------|
 | 数据库 | `SHUKKA_DATA_DIR` 下的本地 SQLite | 远程 libsql HTTP（`SHUKKA_DB_URL`） |
-| 表结构 | 工作目录有 `drizzle/` 时进程启动会 migrate | 部署前在 isolate **外**施加 `drizzle/`。Worker 内不 migrate |
+| 表结构 | 工作目录有 `drizzle/` 时进程启动会 migrate | 部署前把 `drizzle/` 施加到远程库。Worker 自己不 migrate |
 | 加密密钥 | 默认文件、filepath 或 value 三选一 | **只接受 value**：`SHUKKA_ENCRYPTION_KEY`（64 位 hex）。filepath 会拒绝启动 |
 | 口令哈希 | 默认 `scrypt` 即可 | 首次 setup **之前**设 `SHUKKA_PASSWORD_HASH=pbkdf2`（Cloudflare Free CPU）。初始化后锁定 |
 | 登录限速 | 同一 IP 15 分钟 10 次失败 | 关闭。防爆破靠平台 WAF / 防火墙 |
@@ -27,7 +25,7 @@ Free 套餐上 Worker **脚本** gzip 不得超过 Cloudflare 的 **3 MiB** 上�
 3. 远程 libsql 数据库（Turso 或兼容 HTTP 端点）。
 4. Wrangler 已登录到将持有该 Worker 的 Cloudflare 账号。
 
-把 `drizzle/` 下的 SQL **按顺序**施加到该库，用 Turso CLI 或任何能执行这些语句的客户端。不要在 Worker isolate 里 `migrate('./drizzle')`。不要对生产库跑 `npm run db:generate`。
+把 `drizzle/` 下的 SQL **按顺序**施加到该库，用 Turso CLI 或任何能执行这些语句的客户端。Worker 不会自己跑迁移。不要对生产库跑 `npm run db:generate`。
 
 ## Secrets
 
@@ -60,9 +58,9 @@ npm ci
 npm run deploy:worker
 ```
 
-即 `npm run build:worker` 再 `wrangler deploy`。仓库里的 `wrangler.jsonc` 是 Worker 配置（`nodejs_compat`，入口 `src/worker.ts`）。`npm run build` 仍是 Docker / Node 的 Nitro 产物，不要用在这条路径。
+即 `npm run build:worker` 再 `wrangler deploy`。用仓库里的 `wrangler.jsonc`。`npm run build` 是 Docker / VPS 的构建，不要用在这里。
 
-打开 Worker URL。首次访问进入 setup（密码至少 8 位），之后与自托管相同：登录 → 建 app → 发版 → feed 302。
+打开 Worker URL。首次访问进入 setup（密码至少 8 位），之后照常建应用、发版。
 
 对象存储仍按 app 在面板配置。Worker 所在环境必须能打到该 S3 endpoint（Head / Get / Delete / 探针）。CI 与桌面客户端直连存储，不经过 Worker。
 
@@ -77,7 +75,7 @@ DELETE FROM sessions;
 
 把已有 `scrypt$` 实例迁到 Cloudflare Free 时走同一条路，并在 setup 前设 `SHUKKA_PASSWORD_HASH=pbkdf2`。面板不会转换哈希。
 
-手改 `admin.password_hash` 不受支持。库存值以 `scrypt$` 或 `pbkdf2$` 开头，进程按此前缀校验。自己改这一行可能把自己锁在外面，或把 `scrypt$` 管理员留在 Cloudflare Free 上（登录可能超过 isolate CPU 配额）。
+手改 `admin.password_hash` 不受支持。库存值以 `scrypt$` 或 `pbkdf2$` 开头，进程按此前缀校验。自己改这一行可能把自己锁在外面，或把 `scrypt$` 管理员留在 Cloudflare Free 上（登录可能超过 CPU 配额）。
 
 ## 备份
 

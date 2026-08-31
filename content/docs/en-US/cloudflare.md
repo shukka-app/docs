@@ -1,18 +1,16 @@
 ---
 title: Cloudflare Workers
-description: Run the same Shukka panel on Cloudflare Workers with a remote libsql database and an environment-variable encryption key.
+description: Deploy Shukka on Cloudflare Workers. You need a remote libsql database and an encryption key secret.
 ---
 
-Cloudflare Workers is a **second full-panel path**, not a feed-only edge. Setup, sign-in, apps, channels, notes, integration, the upload API, and the update feed are the same product as Docker / VPS.
-
-Self-hosting on a single machine with a data volume remains the primary path. See [Self-hosting](/en-US/docs/deployment).
+You can run Shukka on Cloudflare Workers instead of a VPS. Open the Worker URL, set an admin password, then create apps and publish the same way as [self-hosting](/en-US/docs/deployment). There is no data volume: the database is a remote libsql URL, and the encryption key is a Wrangler secret.
 
 ## What changes on Workers
 
 | Topic | Node (Docker / VPS) | Cloudflare Workers |
 |------|------|------|
 | Database | Local SQLite file under `SHUKKA_DATA_DIR` | Remote libsql over HTTP (`SHUKKA_DB_URL`) |
-| Schema | Applied on process start when `drizzle/` is in the working directory | Apply `drizzle/` **outside** the isolate before deploy. The Worker does not migrate. |
+| Schema | Applied on process start when `drizzle/` is in the working directory | Apply `drizzle/` to the remote database **before** deploy. The Worker does not migrate. |
 | Encryption key | Default file, or filepath, or value | **Value only**: `SHUKKA_ENCRYPTION_KEY` (64 hex characters). Filepath is rejected. |
 | Password hash | Default `scrypt` is fine | Set `SHUKKA_PASSWORD_HASH=pbkdf2` **before first setup** (Cloudflare Free CPU). Locked after init. |
 | Login rate limit | 10 failures / 15 minutes per IP | Off. Use the platform WAF / firewall. |
@@ -27,7 +25,7 @@ The Worker script on the Free plan must stay under Cloudflare's **3 MiB gzip** l
 3. A remote libsql database (Turso or any compatible HTTP endpoint).
 4. Wrangler logged in to the Cloudflare account that will own the Worker.
 
-Apply the SQL files under `drizzle/` to that database **in order**, with the Turso CLI or any client that can run those statements. Do not call `migrate('./drizzle')` inside the Worker. Do not run `npm run db:generate` against a production database.
+Apply the SQL files under `drizzle/` to that database **in order**, with the Turso CLI or any client that can run those statements. The Worker does not apply migrations itself. Do not run `npm run db:generate` against a production database.
 
 ## Secrets
 
@@ -60,9 +58,9 @@ npm ci
 npm run deploy:worker
 ```
 
-That runs `npm run build:worker` then `wrangler deploy`. The repo's `wrangler.jsonc` is the Worker config (`nodejs_compat`, entry `src/worker.ts`). `npm run build` is still the Docker / Node Nitro artifact — do not use it for this path.
+That runs `npm run build:worker` then `wrangler deploy`. Use the repo's `wrangler.jsonc`. `npm run build` is the Docker / VPS build — do not use it here.
 
-Open the Worker URL. First visit is setup (password at least 8 characters), then the same login → create app → publish → feed 302 flow as self-hosting.
+Open the Worker URL. First visit is setup (password at least 8 characters). After that, create apps and publish as usual.
 
 Object storage is still configured per app in the panel. The Worker host must be able to reach that S3 endpoint (Head / Get / Delete / probe). CI and desktop clients talk to storage directly, not through the Worker.
 
@@ -77,7 +75,7 @@ DELETE FROM sessions;
 
 If you are moving an existing `scrypt$` instance onto Cloudflare Free, use this same path and set `SHUKKA_PASSWORD_HASH=pbkdf2` before setup. The panel does not convert hashes.
 
-Hand-editing `admin.password_hash` is unsupported. Stored values start with `scrypt$` or `pbkdf2$`; the process verifies by that prefix. Rewriting the row yourself can lock you out, or leave a `scrypt$` admin on Cloudflare Free (login may exceed the isolate CPU budget).
+Hand-editing `admin.password_hash` is unsupported. Stored values start with `scrypt$` or `pbkdf2$`; the process verifies by that prefix. Rewriting the row yourself can lock you out, or leave a `scrypt$` admin on Cloudflare Free (login may exceed the CPU budget).
 
 ## Backup
 

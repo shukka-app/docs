@@ -19,7 +19,7 @@ npm start          # 运行构建产物
 |------|------|--------------|
 | `index.mdx` | 简介与快速开始 | 主仓库 `README.md` |
 | `deployment.md` | 自托管部署指南 | `docs/prd/deploy.md` |
-| `cloudflare.md` | Cloudflare Workers 全面板部署 | `docs/prd/dual-runtime.md`、`docs/prd/deploy.md` |
+| `cloudflare.md` | Cloudflare Workers 部署 | `docs/prd/dual-runtime.md`、`docs/prd/deploy.md` |
 | `guide/` | 面板使用指南（应用与渠道、发布、API 密钥、发布日志） | `docs/prd/*.md`、`docs/spec.md`、`.claude/skills/shukka-ops/` |
 | `integration/` | Electron / Tauri 客户端集成 | `README.md`、`docs/prd/updater-adapters.md`、`tests/e2e/` |
 | `ci.md` | GitHub Action 与上传脚本 | `action.yml`、`scripts/shukka-upload.mjs` |
@@ -43,4 +43,4 @@ npm run sync:openapi
 
 ## 主题
 
-`app/global.css` 把 Shukka 面板的设计 token（`src/styles.css`：暖灰米色单色 + 焦橙强调色，明暗双主题）映射到 fumadocs 的 `--color-fd-*` 变量与圆角阶梯；字体为 Instrument Sans / Geist Mono（fontsource 本地加载）。
+`app/global.css` 把 Shukka 面板的设计 token（`src/styles.css`：暒灰米色单色 + 焦橙强调色，明暗双主题）映射到 fumadocs 的 `--color-fd-*` 变量与圆角阶梯；字体为 Instrument Sans / Geist Mono（fontsource 本地加载）。
