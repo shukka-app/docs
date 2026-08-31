@@ -43,4 +43,4 @@ npm run sync:openapi
 
 ## 主题
 
-`app/global.css` 把 Shukka 面板的设计 token（`src/styles.css`：暒灰米色单色 + 焦橙强调色，明暗双主题）映射到 fumadocs 的 `--color-fd-*` 变量与圆角阶梯；字体为 Instrument Sans / Geist Mono（fontsource 本地加载）。
+`app/global.css` 把 Shukka 面板的设计 token（`src/styles.css`：暖灰米色单色 + 焦橙强调色，明暗双主题）映射到 fumadocs 的 `--color-fd-*` 变量与圆角阶梯；字体为 Instrument Sans / Geist Mono（fontsource 本地加载）。
