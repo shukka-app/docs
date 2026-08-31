@@ -5,7 +5,7 @@ description: 用 Docker 或源码把 Shukka 跑在一台带持久盘的单机上
 
 Shukka 是单管理员的自托管服务。这条路径上，服务自身的数据库以及（默认的）加密密钥存放在运行机器的磁盘上；安装包存放于每个应用各自配置的 S3 兼容存储。
 
-Cloudflare Workers 是第二条路径，跑**同一份面板**，数据库在远程。见 [Cloudflare Workers](/zh-CN/docs/cloudflare)。
+不想自己挂机器时见 [Cloudflare Workers](/zh-CN/docs/cloudflare)。
 
 ## 推荐形态
 
@@ -82,8 +82,8 @@ Restart=on-failure
 | `SHUKKA_PASSWORD_HASH` | 未设（`scrypt`） | 仅首次 setup 选用管理员口令哈希：未设或 `scrypt` → `scrypt$…`；`pbkdf2` → `pbkdf2$…`。初始化之后锁定。其它值（含 `argon2`）使 setup 返回 `invalid_request` |
 | `SHUKKA_TRUST_PROXY` | 未设 | 设 `1` 或 `true` 时采信反代追加的 `X-Forwarded-For`（最右一跳）与 `X-Real-IP` 作为登录限速键；未设则忽略这些头 |
 | `SHUKKA_SECURE_COOKIES` | 未设 | 设 `1` 或 `true` 时强制 session cookie 带 `Secure`。HTTPS 请求（或 `X-Forwarded-Proto: https`）也会带 `Secure` |
-| `SHUKKA_DB_URL` | 未设 | 远程 libsql HTTP URL。**仅云 isolate** —— Node 自托管不读 |
-| `SHUKKA_DB_AUTH_TOKEN` | 未设 | 该远程库的可选 token。**仅云 isolate** |
+| `SHUKKA_DB_URL` | 未设 | 远程 libsql HTTP URL。**仅 Workers** —— Docker / VPS 不读 |
+| `SHUKKA_DB_AUTH_TOKEN` | 未设 | 该远程库的可选 token。**仅 Workers** |
 | `NODE_ENV` | 镜像内 `production` | Node 生产模式 |
 | `NITRO_SSL_CERT` + `NITRO_SSL_KEY` | 未设 | 在 Node 进程上直接开 TLS（通常不如反代） |
 | `NITRO_UNIX_SOCKET` | 未设 | 改走 UNIX socket |
@@ -101,7 +101,7 @@ Cloudflare Workers 上只接受 `SHUKKA_ENCRYPTION_KEY`。见 [Cloudflare Worker
 
 已经写入的 `scrypt$` 不会因为后来改成 `pbkdf2` 而转换。要把已有实例迁到只适合 pbkdf2 的运行时，删除 `admin` 与 `sessions`（与忘记密码同一条路），设 `SHUKKA_PASSWORD_HASH=pbkdf2`，再走 setup。
 
-手改 `admin.password_hash` 不受支持。库存值以 `scrypt$` 或 `pbkdf2$` 开头，进程按此前缀校验。自己改这一行可能把自己锁在外面，或把 `scrypt$` 实例放到 Cloudflare Free 上（登录可能超过 isolate CPU 配额）。
+手改 `admin.password_hash` 不受支持。库存值以 `scrypt$` 或 `pbkdf2$` 开头，进程按此前缀校验。自己改这一行可能把自己锁在外面，或把 `scrypt$` 实例放到 Cloudflare Free 上（登录可能超过 CPU 配额）。
 
 ## 反向代理与 TLS
 

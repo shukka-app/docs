@@ -5,7 +5,7 @@ description: Run Shukka on a single machine with persistent disk using Docker or
 
 Shukka is a single-admin self-hosted service. On this path the service database and, by default, the encryption key live on the host disk. Installers live in the S3-compatible storage configured per app.
 
-Cloudflare Workers is a second path that runs the **same panel** against a remote database. See [Cloudflare Workers](/en-US/docs/cloudflare).
+To run Shukka without a VPS, see [Cloudflare Workers](/en-US/docs/cloudflare).
 
 ## Recommended shape
 
@@ -82,8 +82,8 @@ The process only reads these variables. S3 credentials, the admin password, and 
 | `SHUKKA_PASSWORD_HASH` | unset (`scrypt`) | Password KDF for **first setup only**: unset or `scrypt` → `scrypt$…`; `pbkdf2` → `pbkdf2$…`. Locked after init. Other values (including `argon2`) make setup return `invalid_request` |
 | `SHUKKA_TRUST_PROXY` | unset | Set `1` or `true` to trust the rightmost `X-Forwarded-For` / `X-Real-IP` hop as the login rate-limit key. Unset: those headers are ignored |
 | `SHUKKA_SECURE_COOKIES` | unset | Set `1` or `true` to force `Secure` on the session cookie. HTTPS requests (or `X-Forwarded-Proto: https`) also set `Secure` |
-| `SHUKKA_DB_URL` | unset | Remote libsql HTTP URL. **Cloud isolates only** — Node self-hosting does not read this |
-| `SHUKKA_DB_AUTH_TOKEN` | unset | Optional token for that remote database. **Cloud isolates only** |
+| `SHUKKA_DB_URL` | unset | Remote libsql HTTP URL. **Workers only** — Docker / VPS does not read this |
+| `SHUKKA_DB_AUTH_TOKEN` | unset | Optional token for that remote database. **Workers only** |
 | `NODE_ENV` | `production` in the image | Node production mode |
 | `NITRO_SSL_CERT` + `NITRO_SSL_KEY` | unset | Terminate TLS on the Node process (usually worse than a reverse proxy) |
 | `NITRO_UNIX_SOCKET` | unset | Listen on a UNIX socket instead |
@@ -101,7 +101,7 @@ On Cloudflare Workers, only `SHUKKA_ENCRYPTION_KEY` is accepted. See [Cloudflare
 
 A stored `scrypt$` hash is never rewritten because you later set `pbkdf2`. To move an existing instance onto a runtime that can only afford pbkdf2, delete `admin` and `sessions` (same path as a forgotten password), set `SHUKKA_PASSWORD_HASH=pbkdf2`, and run setup again.
 
-Hand-editing `admin.password_hash` is unsupported. Stored values start with `scrypt$` or `pbkdf2$`; the process verifies by that prefix. Rewriting the row yourself can lock you out, or put a `scrypt$` instance on Cloudflare Free (login may exceed the isolate CPU budget).
+Hand-editing `admin.password_hash` is unsupported. Stored values start with `scrypt$` or `pbkdf2$`; the process verifies by that prefix. Rewriting the row yourself can lock you out, or put a `scrypt$` instance on Cloudflare Free (login may exceed the CPU budget).
 
 ## Reverse proxy and TLS
 
