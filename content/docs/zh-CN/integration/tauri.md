@@ -26,7 +26,7 @@ npx @tauri-apps/cli signer generate -w ~/.tauri/my-app.key
 
 私钥（`~/.tauri/my-app.key`）留在 CI 里给制品签名，公钥写进客户端配置。feed 本身无鉴权，客户端配置里不放任何凭证。
 
-Tauri 生产客户端默认要求 HTTPS，endpoint 请用 `https://`。
+Tauri 生产客户端要求全链路 HTTPS：endpoint 用 `https://`，Shukka 也必须部署在 HTTPS 之后，使 feed 返回的制品 URL 同为 `https://`。否则客户端拒绝下载，更新不可用。
 
 ## Feed 行为
 

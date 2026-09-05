@@ -26,7 +26,7 @@ npx @tauri-apps/cli signer generate -w ~/.tauri/my-app.key
 
 Keep the private key (`~/.tauri/my-app.key`) in CI to sign artifacts. Put the public key in the client config. The feed itself has no auth; do not put credentials in the client config.
 
-Production Tauri clients require HTTPS by default. Use an `https://` endpoint.
+Production Tauri clients require HTTPS end to end: use an `https://` endpoint, and Shukka itself must sit behind HTTPS so that artifact URLs in the feed are `https://` as well. Otherwise clients refuse the download and updates do not work.
 
 ## Feed behavior
 
