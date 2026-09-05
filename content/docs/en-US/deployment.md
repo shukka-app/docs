@@ -110,7 +110,6 @@ Hand-editing `admin.password_hash` is unsupported. Stored values start with `scr
 - The panel, `/api/v1`, and `/api/update` share one port and one process. Forward the whole origin to Shukka. Do not split paths across backends.
 - Keep the `Host` header. Use HTTPS externally.
 - Behind a reverse proxy, set `SHUKKA_TRUST_PROXY=1` so login rate limiting (10 failures / 15 minutes / IP on Node) uses the client address, not the proxy. Cloudflare Workers does not apply this in-process limit; use the platform WAF.
-- Known pitfall: when the proxy terminates HTTPS and talks HTTP to the origin, artifact URLs in the Tauri feed may be `http://`. Verify with `curl -sS https://your.host/api/update/{app}/{channel}`. If you see `http://`, have the proxy talk TLS to the backend, or set `NITRO_SSL_CERT` / `NITRO_SSL_KEY` on the process.
 
 ## Object storage
 
@@ -181,6 +180,6 @@ On Workers, run that SQL against the remote database. See [Cloudflare Workers](/
 | Setup returns `invalid_request` mentioning `SHUKKA_PASSWORD_HASH` | The variable is not `scrypt` or `pbkdf2` |
 | Schema is stale after start | Process was not started from the app root, so migrations did not run |
 | Creating an app returns `storage_error` | Wrong credentials, bucket, endpoint, or path-style, or the Shukka host cannot reach S3 |
-| CI finalize succeeds but clients cannot download | Client cannot reach S3, or the Tauri feed `url` is `http://` (see the TLS section) |
+| CI finalize succeeds but clients cannot download | Client cannot reach S3 |
 | Sign-in succeeds but the cookie is not set | Panel origin and API origin differ (the proxy split hostnames) |
 | Data is gone after upgrade | The new container did not mount the original volume |

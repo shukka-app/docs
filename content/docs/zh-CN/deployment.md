@@ -110,7 +110,6 @@ Cloudflare Workers 上只接受 `SHUKKA_ENCRYPTION_KEY`。见 [Cloudflare Worker
 - 面板、`/api/v1`、`/api/update` 同端口同进程。反代把整个 origin 转发到 Shukka，不要把路径拆到不同后端。
 - 保留 `Host` 头。对外用 HTTPS。
 - 反代后面部署时设 `SHUKKA_TRUST_PROXY=1`，登录限速（Node 上同一 IP 15 分钟 10 次失败）才会用客户端地址而不是代理。Cloudflare Workers 不跑这份进程内限速，防爆破靠平台 WAF。
-- 已知坑：反代做 HTTPS、回源是 HTTP 时，Tauri feed 里的制品 URL 可能是 `http://`。用 `curl -sS https://your.host/api/update/{app}/{channel}` 验证；若看到 `http://`，让反代对后端也走 TLS，或给进程配 `NITRO_SSL_CERT` / `NITRO_SSL_KEY`。
 
 ## 对象存储
 
@@ -181,6 +180,6 @@ Workers 上对远程库执行同一段 SQL。见 [Cloudflare Workers](/zh-CN/doc
 | setup 报 `invalid_request` 并提到 `SHUKKA_PASSWORD_HASH` | 该变量不是 `scrypt` 或 `pbkdf2` |
 | 启动后表结构旧 | 进程未从应用根启动，数据库迁移未执行 |
 | 创建 app 报 `storage_error` | 凭证、bucket、endpoint、path-style 配置错，或 Shukka 主机到 S3 不通 |
-| CI finalize 成功但客户端下不下来 | 客户端到 S3 不通；或 Tauri feed 里的 `url` 是 `http://`（见 TLS 节） |
+| CI finalize 成功但客户端下不下来 | 客户端到 S3 不通 |
 | 登录成功但 cookie 没带上 | 面板 origin 与 API origin 不一致（反代拆了主机名） |
 | 升级后数据没了 | 新容器没挂原来的卷 |

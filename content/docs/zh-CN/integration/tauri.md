@@ -32,9 +32,7 @@ Tauri 生产客户端默认要求 HTTPS，endpoint 请用 `https://`。
 
 `GET /api/update/{appSlug}/{channel}`（或 `.../latest.json`）返回为当前**已发布**版本生成的静态 updater JSON：`platforms` 映射里每个平台的 `url` 指向本 feed 下的制品（跟随 302 到 S3），`signature` 为对应 `.sig` 文件的正文。无当前版本时 404；draft 对 updater 不可见。
 
-`latest.json` 里的绝对 `url` 按本次请求的 origin 生成。如果 Shukka 在反代之后且回源是 HTTP，feed 里的制品 URL 会是 `http://`，生产客户端会拒绝下载。用 `curl -sS https://<host>/api/update/{app}/{channel}` 验证；修复是让反代以 TLS 回源，或给进程配 `NITRO_SSL_CERT` / `NITRO_SSL_KEY`——见[自托管部署的 TLS 一节](/zh-CN/docs/deployment#反向代理与-tls)。
-
-Kamal 路径同样能修，只是 kamal-proxy 本身不支持回源 TLS：在 role 上（`servers.web` 下）设 `proxy: false`，把容器端口发布到 `127.0.0.1`，由主机上自己的反代（如 Caddy）终结 TLS 并以 HTTPS 回源到容器。代价是失去 kamal-proxy 的零停机切换——新容器先起会撞已发布的端口，需要 `.kamal/hooks/pre-app-boot` 先停旧容器，部署会有几秒中断。
+`latest.json` 里的绝对 `url` 按本次请求的 origin 生成。
 
 ## 发布
 
