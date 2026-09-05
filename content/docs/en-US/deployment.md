@@ -38,6 +38,8 @@ Ansible copies that file onto a host and waits for `/api/health`: [`deploy/ansib
 ansible-playbook -i inventory.ini deploy/ansible/playbook.yml
 ```
 
+The same image can also be deployed with [Kamal](/en-US/docs/kamal): `kamal setup` installs Docker and kamal-proxy, then `kamal deploy` pulls the image and swaps containers.
+
 3. Reverse-proxy to `127.0.0.1:3000` and expose only HTTPS.
 4. Open the panel. The first visit enters setup; set an admin password of at least 8 characters. Leave `SHUKKA_PASSWORD_HASH` unset (or `scrypt`) unless you already know this instance must later run on Cloudflare Workers Free — that choice is locked at first setup. See “Password hash” below.
 5. Test the storage connection when creating an app. A failed test is not saved.
@@ -140,6 +142,8 @@ sqlite3 /data/shukka.db ".backup /tmp/shukka-backup.db"
 ```
 
 and copy the key file at the same time. Artifacts live in each app's bucket. Manage them with bucket versioning or lifecycle rules; they are not in the data directory.
+
+For a continuously updated off-host copy, or for platforms with an ephemeral container filesystem and no reliable local volume, see [Litestream](/en-US/docs/litestream) — it is built into the image and only takes a few environment variables.
 
 Upgrade: pull a new image or `git pull && npm ci && npm run build`, stop the old process, and start the new process with the same data directory. Migrations run automatically on startup when `drizzle/` is in the working directory. Do not run two Shukka processes against the same data directory. Rollback: switch back to the old image / old build and keep the data directory.
 

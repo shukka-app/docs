@@ -32,7 +32,7 @@ Production Tauri clients require HTTPS by default. Use an `https://` endpoint.
 
 `GET /api/update/{appSlug}/{channel}` (or `.../latest.json`) returns static updater JSON generated for the current **published** version: each platform in `platforms` has a `url` pointing at an artifact on this feed (follow 302 to S3) and a `signature` that is the body of the matching `.sig` file. 404 when there is no current version. Drafts are invisible to the updater.
 
-Absolute `url` values in `latest.json` are generated from the current request origin. If Shukka sits behind a reverse proxy that talks HTTP to the origin, artifact URLs in the feed may become `http://` — see [the TLS section in Self-hosting](/en-US/docs/deployment#reverse-proxy-and-tls).
+Absolute `url` values in `latest.json` are generated from the current request origin. If Shukka sits behind a reverse proxy that talks HTTP to the origin, artifact URLs in the feed come out as `http://`, and production clients refuse the download. Verify with `curl -sS https://<host>/api/update/{app}/{channel}`. The fix is TLS to the backend: have the proxy upgrade its origin connection, or set `NITRO_SSL_CERT` / `NITRO_SSL_KEY` on the process — see [the TLS section in Self-hosting](/en-US/docs/deployment#reverse-proxy-and-tls). Note that the Kamal path (kamal-proxy) cannot do backend TLS, so the pitfall is unfixable there; to serve Tauri apps, use the self-hosted path with Caddy/nginx, or [Cloudflare Workers](/en-US/docs/cloudflare).
 
 ## Publishing
 

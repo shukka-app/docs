@@ -32,7 +32,7 @@ Tauri 生产客户端默认要求 HTTPS，endpoint 请用 `https://`。
 
 `GET /api/update/{appSlug}/{channel}`（或 `.../latest.json`）返回为当前**已发布**版本生成的静态 updater JSON：`platforms` 映射里每个平台的 `url` 指向本 feed 下的制品（跟随 302 到 S3），`signature` 为对应 `.sig` 文件的正文。无当前版本时 404；draft 对 updater 不可见。
 
-`latest.json` 里的绝对 `url` 按本次请求的 origin 生成。如果 Shukka 在反代之后且回源是 HTTP，feed 里可能出现 `http://` 的制品 URL——见[自托管部署的 TLS 一节](/zh-CN/docs/deployment#反向代理与-tls)。
+`latest.json` 里的绝对 `url` 按本次请求的 origin 生成。如果 Shukka 在反代之后且回源是 HTTP，feed 里的制品 URL 会是 `http://`，生产客户端会拒绝下载。用 `curl -sS https://<host>/api/update/{app}/{channel}` 验证；修复是让反代以 TLS 回源，或给进程配 `NITRO_SSL_CERT` / `NITRO_SSL_KEY`——见[自托管部署的 TLS 一节](/zh-CN/docs/deployment#反向代理与-tls)。注意 Kamal 路径（kamal-proxy）不支持回源 TLS，这个坑在该路径上无法修复；服务 Tauri 应用时不要选 Kamal，用 Caddy/nginx 的自托管路径或 [Cloudflare Workers](/zh-CN/docs/cloudflare)。
 
 ## 发布
 

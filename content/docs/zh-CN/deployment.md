@@ -38,6 +38,8 @@ Ansible 把该文件拷到主机并等到 `/api/health`：[`deploy/ansible/playb
 ansible-playbook -i inventory.ini deploy/ansible/playbook.yml
 ```
 
+同一份镜像也可以用 [Kamal](/zh-CN/docs/kamal) 部到主机（`kamal setup` 装 Docker 与 kamal-proxy，之后 `kamal deploy` 拉镜像换容器）。
+
 3. 反向代理到 `127.0.0.1:3000`，对外只暴露 HTTPS。
 4. 打开面板，首次访问进入 setup，设置至少 8 位管理员密码。除非已经确定这个实例以后要上 Cloudflare Workers Free，否则不要设 `SHUKKA_PASSWORD_HASH`（或设 `scrypt`）——算法在首次 setup 锁定。见下文「口令哈希」。
 5. 创建应用时测试存储连接；测试失败不会保存。
@@ -140,6 +142,8 @@ sqlite3 /data/shukka.db ".backup /tmp/shukka-backup.db"
 ```
 
 并同时复制密钥文件。制品在各 app 的 bucket 里，单独做 bucket 版本或生命周期管理，不在数据目录里。
+
+要一份持续更新的异地副本，或跑在容器盘短暂、没有可靠本地卷的平台上，见 [Litestream 复制](/zh-CN/docs/litestream)——镜像已内置，加几个环境变量即可。
 
 升级：拉新镜像或 `git pull && npm ci && npm run build`，停旧进程，用同一数据目录启动新进程。工作目录有 `drizzle/` 时启动会自动 migrate。同一数据目录不要同时跑两个 Shukka 进程。回滚：换回旧镜像 / 旧构建，保留数据目录。
 
