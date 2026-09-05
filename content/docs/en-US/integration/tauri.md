@@ -32,8 +32,6 @@ Production Tauri clients require HTTPS end to end: use an `https://` endpoint, a
 
 `GET /api/update/{appSlug}/{channel}` (or `.../latest.json`) returns static updater JSON generated for the current **published** version: each platform in `platforms` has a `url` pointing at an artifact on this feed (follow 302 to S3) and a `signature` that is the body of the matching `.sig` file. 404 when there is no current version. Drafts are invisible to the updater.
 
-Absolute `url` values in `latest.json` are generated from the current request origin.
-
 ## Publishing
 
 Upload the entire artifact directory: per-platform bundles (for example `.app.tar.gz`, `.AppImage`, `.exe`) plus the matching `.sig` for each artifact. You may also include the build-generated `latest.json`. Generate `.sig` with the private key:

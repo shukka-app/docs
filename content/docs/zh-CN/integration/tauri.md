@@ -32,8 +32,6 @@ Tauri 生产客户端要求全链路 HTTPS：endpoint 用 `https://`，Shukka �
 
 `GET /api/update/{appSlug}/{channel}`（或 `.../latest.json`）返回为当前**已发布**版本生成的静态 updater JSON：`platforms` 映射里每个平台的 `url` 指向本 feed 下的制品（跟随 302 到 S3），`signature` 为对应 `.sig` 文件的正文。无当前版本时 404；draft 对 updater 不可见。
 
-`latest.json` 里的绝对 `url` 按本次请求的 origin 生成。
-
 ## 发布
 
 上传整个产物目录：各平台的 bundle（如 `.app.tar.gz`、`.AppImage`、`.exe` 等）加上每个制品对应的 `.sig` 签名文件；也可以带上构建生成的 `latest.json`。`.sig` 用私钥生成：
