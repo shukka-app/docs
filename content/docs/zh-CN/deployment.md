@@ -9,7 +9,7 @@ Shukka 是单管理员的自托管服务。这条路径上，服务自身的数�
 
 ## 推荐形态
 
-一台 VPS（或同等单机）上跑公开镜像 `ghcr.io/shukka-app/shukka`，挂一个持久卷到 `/data`，前面用 Caddy 或 nginx 提供 HTTPS。对象存储用 Cloudflare R2、AWS S3 或独立 MinIO。
+一台 VPS（或同等单机）上跑公开镜像 `ghcr.io/shukka-app/shukka`，挂一个持久卷到 `/data`，前面用 Caddy 或 nginx 提供 HTTPS。对象存储用 Cloudflare R2、AWS S3、阿里云 OSS 或独立 MinIO。
 
 ## 用 Docker 部署（主路径）
 
@@ -119,6 +119,7 @@ Cloudflare Workers 上只接受 `SHUKKA_ENCRYPTION_KEY`。见 [Cloudflare Worker
 |------|------|
 | AWS S3 | endpoint 留空；region 为真实区域 |
 | Cloudflare R2 | endpoint 为 R2 S3 API；region `auto` |
+| 阿里云 OSS | 新建向导只填存储桶和区域。端点为 `https://{bucket}.oss-{region}.aliyuncs.com`；path-style 始终开启 |
 | MinIO | 填 endpoint，强制 path-style |
 | 其他兼容实现 | 按对方文档；多数要 path-style |
 

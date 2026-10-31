@@ -9,7 +9,7 @@ To run Shukka without a VPS, see [Cloudflare Workers](/en-US/docs/cloudflare).
 
 ## Recommended shape
 
-Run the public image `ghcr.io/shukka-app/shukka` on a VPS (or equivalent single host), mount a persistent volume at `/data`, and put Caddy or nginx in front for HTTPS. Use Cloudflare R2, AWS S3, or a standalone MinIO for object storage.
+Run the public image `ghcr.io/shukka-app/shukka` on a VPS (or equivalent single host), mount a persistent volume at `/data`, and put Caddy or nginx in front for HTTPS. Use Cloudflare R2, AWS S3, Aliyun OSS, or a standalone MinIO for object storage.
 
 ## Deploy with Docker (primary path)
 
@@ -119,6 +119,7 @@ Each app is configured independently: endpoint, region, bucket, prefix, access k
 |------|------|
 | AWS S3 | Leave endpoint empty; use the real region |
 | Cloudflare R2 | Endpoint is the R2 S3 API; region `auto` |
+| Aliyun OSS | In the create wizard: bucket + region only. Endpoint is `https://{bucket}.oss-{region}.aliyuncs.com`; path-style is always on |
 | MinIO | Set the endpoint and force path-style |
 | Other compatible implementations | Follow their docs; most need path-style |
 
